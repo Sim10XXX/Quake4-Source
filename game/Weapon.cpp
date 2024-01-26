@@ -2778,6 +2778,7 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 	float spreadRad = DEG2RAD( spread );
 	idVec3 end;
 	for( i = 0; i < num_hitscans; i++ ) {
+		//int timer1 = 0;
 		if( weaponDef->dict.GetBool( "machinegunSpreadStyle" ) ) {	
 			float r = gameLocal.random.RandomFloat() * idMath::PI * 2.0f;
 			float u = idMath::Sin( r ) * gameLocal.random.CRandomFloat() * spread * 16;
@@ -2831,6 +2832,9 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 				gameLocal.SendUnreliableMessagePVS( msg, owner, areas[0], areas[1] );
 			}
 		}
+		
+		//for (int timer2 = 1000000000; timer2>timer1; timer2--){}
+		//DelayTime(10,0);
 	}
 }
 

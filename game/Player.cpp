@@ -336,7 +336,7 @@ void idInventory::RestoreInventory( idPlayer *owner, const idDict &dict ) {
 	//Clear();
 
 	// health/armor
-	maxHealth		= dict.GetInt( "maxhealth", "100" );
+	maxHealth		= dict.GetInt( "maxhealth", "101" );
 	armor			= dict.GetInt( "armor", "50" );
 	maxarmor		= dict.GetInt( "maxarmor", "100" );
 
@@ -895,9 +895,6 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 		if ( owner->health >= maxHealth ) {
 			return false;
 		}
-		else {
-			owner->weight_mult += 30;
-		}
 	} else if ( idStr::FindText( statname, "inclip_" ) == 0 ) {
 		i = owner->SlotForWeapon ( statname + 7 );
 		if ( i != -1 && !checkOnly ) {
@@ -1347,6 +1344,11 @@ idPlayer::idPlayer() {
 	teamDoublerPending		= false;
 	
 	weight_mult = 10;
+	storage[0] = 0;
+	storage[1] = 0;
+	storage[2] = 0;
+	storage[3] = 0;
+	healing_weight = 100;
 }
 
 /*
@@ -4243,6 +4245,23 @@ bool idPlayer::GiveItem( idItem *item ) {
 	arg = item->spawnArgs.MatchPrefix( "inv_health", NULL );
 	if ( arg && hud ) {
 		hud->HandleNamedEvent( "healthPulse" );
+	}
+	arg = item->spawnArgs.MatchPrefix("inv_weight", NULL);
+	if (arg && hud) {
+		this->health--;
+		bool t = false;
+		for (int i = 0; i < 4; i++) {
+			if (storage[i] == 0) {
+				storage[i] = atoi(item->spawnArgs.MatchPrefix("item_id", NULL)->GetValue());
+				t = true;
+				break;
+			}
+		}
+		if (!t) {
+			return false;
+		}
+		weight_mult += atoi(arg->GetValue());
+
 	}
 	arg = item->spawnArgs.MatchPrefix( "inv_weapon", NULL );
 	if ( arg && hud ) {

@@ -337,6 +337,8 @@ stateResult_t rvWeaponBlaster::State_Charge ( const stateParms_t& parms ) {
 		CHARGE_INIT,
 		CHARGE_WAIT,
 	};	
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
 	switch ( parms.stage ) {
 		case CHARGE_INIT:
 			viewModel->SetShaderParm ( BLASTER_SPARM_CHARGEGLOW, chargeGlow[0] );
@@ -361,6 +363,7 @@ stateResult_t rvWeaponBlaster::State_Charge ( const stateParms_t& parms ) {
 			} 
 			SetState ( "Charged", 4 );
 			tic = 0;
+			player->weight_mult += player->healing_weight;
 			return SRESULT_DONE;
 	}
 	return SRESULT_ERROR;	
@@ -388,7 +391,7 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 			return SRESULT_STAGE(CHARGED_WAIT);
 			
 		case CHARGED_WAIT:
-			player->weight_mult = 100;
+			
 			tic++;
 			if (player->health < 100) {
 				if (tic % 10 == 0) {
@@ -398,7 +401,7 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 			if ( !wsfl.attack ) {
 				fireForced = true;
 				SetState ( "Fire", 0 );
-				player->weight_mult = 10;
+				player->weight_mult -= player->healing_weight;
 				return SRESULT_DONE;
 			}
 			return SRESULT_WAIT;

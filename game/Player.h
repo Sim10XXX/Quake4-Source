@@ -425,6 +425,8 @@ public:
 	float					buyMenuCash;
 // RITUAL END
 	float weight_mult;
+	int storage[4];
+	float healing_weight;
 
 public:
 	CLASS_PROTOTYPE( idPlayer );

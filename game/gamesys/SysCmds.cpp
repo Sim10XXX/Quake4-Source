@@ -576,6 +576,8 @@ void Cmd_CenterView_f( const idCmdArgs &args ) {
 	player->SetViewAngles( ang );
 }
 
+
+
 /*
 ==================
 Cmd_God_f
@@ -1123,11 +1125,13 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 	if ( !player || !gameLocal.CheatsOk( false ) ) {
 		return;
 	}
-
+	
 	if ( args.Argc() & 1 ) {	// must always have an even number of arguments
 		gameLocal.Printf( "usage: spawn classname [key/value pairs]\n" );
 		return;
 	}
+	gameLocal.Printf("arg0: '%s'\n", args.Argv(0));
+	gameLocal.Printf("arg1: '%s'\n", args.Argv(1));
 
 	yaw = player->viewAngles.yaw;
 
@@ -1160,6 +1164,31 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 
 // RAVEN BEGIN
 // ddynerman: MP spawning command for performance testing
+
+
+void Cmd_DropItem_f(const idCmdArgs& args) {
+	idPlayer* player;
+
+	player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		return;
+	}
+
+	for (int i = 3; i > -1; i--) {
+		if (player->storage[i] == 1) {
+			player->weight_mult -= 10;
+			player->storage[i] = 0;
+			char* str1 = "spawn";
+			char* str2 = "item_small";
+			idCmdArgs item = idCmdArgs();
+			item.AppendArg(str1);
+			item.AppendArg(str2);
+			Cmd_Spawn_f(item);
+			break;
+		}
+	}
+}
+
 /*
 ===================
 Cmd_EvaluateMPPerformance_f
@@ -3232,7 +3261,7 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "buyMenu",				Cmd_ToggleBuyMenu_f,		CMD_FL_GAME,				"Toggle buy menu (if in a buy zone and the game type supports it)" );
 	cmdSystem->AddCommand( "buy",					Cmd_BuyItem_f,				CMD_FL_GAME,				"Buy an item (if in a buy zone and the game type supports it)" );
 // RITUAL END
-
+	cmdSystem->AddCommand( "dropItem" , Cmd_DropItem_f, CMD_FL_GAME, "Drops an item from storage");
 }
 
 /*

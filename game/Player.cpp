@@ -1349,6 +1349,17 @@ idPlayer::idPlayer() {
 	storage[2] = 0;
 	storage[3] = 0;
 	healing_weight = 100;
+	time_hours[0] = ' ';
+	time_hours[1] = '8';
+	time_hours[2] = '\0';
+	time_minutes[0] = '0';
+	time_minutes[1] = '0';
+	time_minutes[2] = '\0';
+	time_ampm[0] = 'a';
+	time_ampm[1] = 'm';
+	time_ampm[2] = '\0';
+	current_time = gameLocal.time/1000;
+	start_time = current_time - 28800;
 }
 
 /*
@@ -3400,6 +3411,31 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 	assert ( _hud );
 
 	_hud->SetStateInt("player_weight", weight_mult);
+
+	if (current_time != gameLocal.time / 1000) {
+		current_time = gameLocal.time / 1000;
+		int delta = current_time - start_time; // ASCII chart: 48 = '0', 57 = '9'
+		time_minutes[1] = 48 + delta % 10;
+		time_minutes[0] = 48 + (delta % 60) / 10;
+		time_hours[1] = 48 + (delta % 600) / 60;
+		if (delta % 43200 >= 36000) {
+			time_hours[0] = '1';
+		}
+		else {
+			time_hours[0] = ' ';
+		}
+		if (delta % 86400 >= 432000) {
+			time_ampm[0] = 'p';
+		}
+		else {
+			time_ampm[0] = 'a';
+		}
+
+		_hud->SetStateString("player_time_hours", time_hours);
+		_hud->SetStateString("player_time_minutes", time_minutes);
+		_hud->SetStateString("player_time_ampm", time_ampm);
+	}
+	
 
 	temp = _hud->State().GetInt ( "player_health", "-1" );
 	if ( temp != health ) {		

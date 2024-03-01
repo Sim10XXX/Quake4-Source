@@ -427,6 +427,11 @@ public:
 	float weight_mult;
 	int storage[4];
 	float healing_weight;
+	char time_hours[3];
+	char time_minutes[3];
+	char time_ampm[3];
+	int start_time;
+	int current_time;
 
 public:
 	CLASS_PROTOTYPE( idPlayer );

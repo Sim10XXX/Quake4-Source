@@ -895,6 +895,9 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 		if ( owner->health >= maxHealth ) {
 			return false;
 		}
+		else {
+			owner->weight_mult += 30;
+		}
 	} else if ( idStr::FindText( statname, "inclip_" ) == 0 ) {
 		i = owner->SlotForWeapon ( statname + 7 );
 		if ( i != -1 && !checkOnly ) {
@@ -1342,6 +1345,8 @@ idPlayer::idPlayer() {
 	teamAmmoRegenPending	= false;
 	teamDoubler			= NULL;		
 	teamDoublerPending		= false;
+	
+	weight_mult = 10;
 }
 
 /*
@@ -3391,6 +3396,8 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 	int temp;
 	
 	assert ( _hud );
+
+	_hud->SetStateInt("player_weight", weight_mult);
 
 	temp = _hud->State().GetInt ( "player_health", "-1" );
 	if ( temp != health ) {		
@@ -7210,6 +7217,7 @@ void idPlayer::UpdateFocus( void ) {
 
 				ui->SetStateString( "player_health", va("%i", health ) );
 				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ) );
+				ui->SetStateString("player_weight", va("%i", weight_mult));
 
 				kv = ent->spawnArgs.MatchPrefix( "gui_", NULL );
 				while ( kv ) {
@@ -8753,6 +8761,8 @@ void idPlayer::AdjustSpeed( void ) {
 	}
 
 	speed *= PowerUpModifier(PMOD_SPEED);
+	
+	speed *= 50 / weight_mult;
 
 	if ( influenceActive == INFLUENCE_LEVEL3 ) {
 		speed *= 0.33f;

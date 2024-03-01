@@ -424,6 +424,7 @@ public:
 // squirrel: Mode-agnostic buymenus
 	float					buyMenuCash;
 // RITUAL END
+	float weight_mult;
 
 public:
 	CLASS_PROTOTYPE( idPlayer );

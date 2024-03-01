@@ -43,6 +43,7 @@ private:
 	stateResult_t		State_Flashlight		( const stateParms_t& parms );
 	
 	CLASS_STATES_PROTOTYPE ( rvWeaponBlaster );
+	int tic;
 };
 
 CLASS_DECLARATION( rvWeapon, rvWeaponBlaster )
@@ -359,6 +360,7 @@ stateResult_t rvWeaponBlaster::State_Charge ( const stateParms_t& parms ) {
 				return SRESULT_WAIT;
 			} 
 			SetState ( "Charged", 4 );
+			tic = 0;
 			return SRESULT_DONE;
 	}
 	return SRESULT_ERROR;	
@@ -374,6 +376,8 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 		CHARGED_INIT,
 		CHARGED_WAIT,
 	};	
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
 	switch ( parms.stage ) {
 		case CHARGED_INIT:		
 			viewModel->SetShaderParm ( BLASTER_SPARM_CHARGEGLOW, 1.0f  );
@@ -384,9 +388,17 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 			return SRESULT_STAGE(CHARGED_WAIT);
 			
 		case CHARGED_WAIT:
+			player->weight_mult = 100;
+			tic++;
+			if (player->health < 100) {
+				if (tic % 10 == 0) {
+					player->health += 1;
+				}
+			}
 			if ( !wsfl.attack ) {
 				fireForced = true;
 				SetState ( "Fire", 0 );
+				player->weight_mult = 10;
 				return SRESULT_DONE;
 			}
 			return SRESULT_WAIT;

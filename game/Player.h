@@ -432,6 +432,7 @@ public:
 	char time_ampm[3];
 	int start_time;
 	int current_time;
+	int timediv;
 
 public:
 	CLASS_PROTOTYPE( idPlayer );

@@ -1358,8 +1358,9 @@ idPlayer::idPlayer() {
 	time_ampm[0] = 'a';
 	time_ampm[1] = 'm';
 	time_ampm[2] = '\0';
-	current_time = gameLocal.time/1000;
-	start_time = current_time - 28800;
+	timediv = 50;
+	current_time = gameLocal.time/timediv;
+	start_time = current_time - 480;
 }
 
 /*
@@ -3411,20 +3412,41 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 	assert ( _hud );
 
 	_hud->SetStateInt("player_weight", weight_mult);
+	_hud->SetStateInt("storage_1", storage[0]);
+	_hud->SetStateInt("storage_2", storage[1]);
+	_hud->SetStateInt("storage_3", storage[2]);
+	_hud->SetStateInt("storage_4", storage[3]);
 
-	if (current_time != gameLocal.time / 1000) {
-		current_time = gameLocal.time / 1000;
+
+
+	if (current_time != gameLocal.time / timediv) {
+		current_time = gameLocal.time / timediv;
 		int delta = current_time - start_time; // ASCII chart: 48 = '0', 57 = '9'
 		time_minutes[1] = 48 + delta % 10;
 		time_minutes[0] = 48 + (delta % 60) / 10;
-		time_hours[1] = 48 + (delta % 600) / 60;
-		if (delta % 43200 >= 36000) {
+		time_hours[1] = 48 + (delta % 720) / 60;
+		if (time_hours[1] == 48) {
+			time_hours[1] = 60;
+		}
+		if (time_hours[1] >= 58) {
 			time_hours[0] = '1';
 		}
 		else {
 			time_hours[0] = ' ';
 		}
-		if (delta % 86400 >= 432000) {
+		switch (time_hours[1]) {
+			case 58:
+				time_hours[1] = '0';
+				break;
+			case 59:
+				time_hours[1] = '1';
+				break;
+			case 60:
+				time_hours[1] = '2';
+				break;
+		}
+
+		if (delta % 1440 >= 720) {
 			time_ampm[0] = 'p';
 		}
 		else {
@@ -4286,9 +4308,18 @@ bool idPlayer::GiveItem( idItem *item ) {
 	if (arg && hud) {
 		this->health--;
 		bool t = false;
+		int item_id = atoi(item->spawnArgs.MatchPrefix("item_id", NULL)->GetValue());
 		for (int i = 0; i < 4; i++) {
 			if (storage[i] == 0) {
-				storage[i] = atoi(item->spawnArgs.MatchPrefix("item_id", NULL)->GetValue());
+				if (item_id == 3) {
+					if (i < 3 && storage[i + 1] == 0) {
+						storage[i + 1] = item_id;
+					}
+					else {
+						break;
+					}
+				}
+				storage[i] = item_id;
 				t = true;
 				break;
 			}
@@ -8817,7 +8848,7 @@ void idPlayer::AdjustSpeed( void ) {
 
 	speed *= PowerUpModifier(PMOD_SPEED);
 	
-	speed *= 50 / weight_mult;
+	speed *= 100 / (20 + weight_mult);
 
 	if ( influenceActive == INFLUENCE_LEVEL3 ) {
 		speed *= 0.33f;

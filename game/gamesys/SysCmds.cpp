@@ -1156,7 +1156,7 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 	gameLocal.SpawnEntityDef( dict, &newEnt );
 
 	if (newEnt)	{
-		gameLocal.Printf("spawned entity '%s'\n", newEnt->name.c_str());
+		gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
 	}
 // RAVEN END
 #endif // !_MPBETA
@@ -1175,14 +1175,32 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 	}
 
 	for (int i = 3; i > -1; i--) {
-		if (player->storage[i] == 1) {
-			player->weight_mult -= 10;
-			player->storage[i] = 0;
-			char* str1 = "spawn";
-			char* str2 = "item_small";
+		if (player->storage[i] != 0) {
+			char* str0 = "spawn";
+			char* str1 = "item_small";
+			char* str2 = "item_medium";
+			char* str3 = "item_large";
 			idCmdArgs item = idCmdArgs();
-			item.AppendArg(str1);
-			item.AppendArg(str2);
+			item.AppendArg(str0);
+			switch (player->storage[i]) {
+			case 1:
+				player->weight_mult -= 10;
+				item.AppendArg(str1);
+				break;
+			case 2:
+				player->weight_mult -= 20;
+				item.AppendArg(str2);
+				break;
+			case 3:
+				player->weight_mult -= 40;
+				item.AppendArg(str3);
+				break;
+			}
+
+			if (player->storage[i] == 3) {
+				player->storage[i-1] = 0;
+			}
+			player->storage[i] = 0;
 			Cmd_Spawn_f(item);
 			break;
 		}

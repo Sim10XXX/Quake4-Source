@@ -44,6 +44,7 @@ protected:
 	idList<rvScriptFuncUtility> scriptFunctions;
 	//const function_t *	scriptFunction;
 // RAVEN END
+	void	DrawDebugEntityInfo( void );
 };
 
 

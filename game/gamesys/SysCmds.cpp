@@ -31,6 +31,7 @@
 #include "NoGameTypeInfo.h"
 #endif
 
+
 /*
 ==================
 Cmd_GetFloatArg
@@ -1142,6 +1143,8 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 	org = player->GetPhysics()->GetOrigin() + idAngles( 0, yaw, 0 ).ToForward() * 80 + idVec3( 0, 0, 1 );
 	dict.Set( "origin", org.ToString() );
 
+
+
 	for( i = 2; i < args.Argc() - 1; i += 2 ) {
 
 		key = args.Argv( i );
@@ -1162,9 +1165,77 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 #endif // !_MPBETA
 }
 
-// RAVEN BEGIN
-// ddynerman: MP spawning command for performance testing
+void Cmd_SpawnItems_f(const idCmdArgs& args) {
+	int			i;
+	int			id;
+	float		yaw;
+	idVec3		org;
+	idPlayer* player;
+	idDict		dict;
+	//idVec3		corner1 = idVec3(11000, -7250, 135);
+	idVec3		corner = idVec3(9000, -9250, 135);
 
+	if (args.Argc() != 3) {
+		gameLocal.Printf("must have 3 args\n");
+		return;
+	}
+	
+	for (i = 0; i < atoi(args.Argv(1)); i++) {
+		org = idVec3(rand() % 2000, rand() % 2000, 0) + corner;
+		id = atoi(args.Argv(2));
+		dict.Set("origin", org.ToString());
+		switch (id) {
+			case 1:
+				dict.Set("classname", "item_small");
+				break;
+			case 2:
+				dict.Set("classname", "item_medium");
+				break;
+			case 3:
+				dict.Set("classname", "item_large");
+				break;
+			case 4:
+				dict.Set("classname", "trigger_hurt");
+				dict.Set("model", "trigger_hurt_2");
+				dict.Set("def_damage", "damage_fire_15");
+				idEntity* newEnt = NULL;
+				gameLocal.SpawnEntityDef(dict, &newEnt);
+				if (newEnt) {
+					gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+				}
+
+				dict.Clear();
+				dict.Set("origin", org.ToString());
+				/*
+				dict.Set("classname", "light");
+				dict.Set("texture", "lights/fire2");
+				dict.Set("light_radius", "256, 256, 256");
+				dict.Set("nodynamicshadows", "0");
+				dict.Set("noshadows", "0");
+				dict.Set("nospecular", "0");
+				dict.Set("nodiffuse", "0");
+				dict.Set("falloff", "0");
+				dict.Set("_color", "1 0.73 0.44");
+				
+				dict.Set("classname", "func_fx");
+				dict.Set("fx", "effects/fire/column_128.fx");
+				dict.Set("loop", "func_fx");
+				dict.Set("starton", "func_fx");
+				dict.Set("remove", "func_fx");
+				dict.Set("rotation", "0 0 1 0 1 0 -1 0 0");*/
+				dict.Set("classname", "func_static");
+				dict.Set("model", "func_static_54168");
+				
+				break;
+		}
+
+		idEntity* newEnt = NULL;
+		gameLocal.SpawnEntityDef(dict, &newEnt);
+		if (newEnt) {
+			gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+		}
+	}
+}
 
 void Cmd_DropItem_f(const idCmdArgs& args) {
 	idPlayer* player;
@@ -1206,6 +1277,10 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 		}
 	}
 }
+
+// RAVEN BEGIN
+// ddynerman: MP spawning command for performance testing
+
 
 /*
 ===================
@@ -3280,6 +3355,7 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "buy",					Cmd_BuyItem_f,				CMD_FL_GAME,				"Buy an item (if in a buy zone and the game type supports it)" );
 // RITUAL END
 	cmdSystem->AddCommand( "dropItem" , Cmd_DropItem_f, CMD_FL_GAME, "Drops an item from storage");
+	cmdSystem->AddCommand( "spawnItems", Cmd_SpawnItems_f, CMD_FL_GAME, "Randomly spawns in items/hazards in a pre-coded area");
 }
 
 /*

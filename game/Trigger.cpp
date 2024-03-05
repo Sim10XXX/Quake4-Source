@@ -26,6 +26,11 @@ END_CLASS
 idTrigger::DrawDebugInfo
 ================
 */
+void idTrigger::DrawDebugEntityInfo(void) {
+	DrawDebugInfo();
+}
+
+
 void idTrigger::DrawDebugInfo( void ) {
 	idMat3		axis = gameLocal.GetLocalPlayer()->viewAngles.ToMat3();
 	idVec3		up = axis[ 2 ] * 5.0f;

@@ -1274,7 +1274,7 @@ idTrigger_Hurt::Event_Touch
 */
 void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 	const char *damage;
-
+	idPlayer *player = gameLocal.GetLocalPlayer();
 // RAVEN BEGIN
 // kfuller: playeronly flag
 // jnewquist: Use accessor for static class type 
@@ -1286,7 +1286,13 @@ void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 	if ( on && other && gameLocal.time >= nextTime ) {
 		damage = spawnArgs.GetString( "def_damage", "damage_painTrigger" );
 		other->Damage( this, NULL, vec3_origin, damage, 1.0f, INVALID_JOINT );
-
+		if (damage = "damage_fire_1") {
+			player->weight_effect += 100;
+		}
+		else if (damage = "damage_fire_2") {
+			player->weight_effect += 10;
+			gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 10, 3);
+		}
 		ActivateTargets( other );
 		CallScript( other );
 

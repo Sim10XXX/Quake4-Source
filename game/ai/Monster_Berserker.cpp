@@ -189,6 +189,16 @@ rvMonsterBerserker::CheckActions
 ================
 */
 bool rvMonsterBerserker::CheckActions ( void ) {
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
+	if (GetEnemy() == player) {
+		if (player->DistanceTo(player->shadow) > 140.0f) {
+			SetEnemy(player->shadow);
+		}
+		//gameLocal.Printf("set to shadow");
+
+	}
+	
 	// Pop-up attack is a forward moving melee attack that throws the enemy up in the air
 	if ( PerformAction ( &actionPopupAttack, (checkAction_t)&idAI::CheckAction_LeapAttack, &actionTimerSpecialAttack ) ) {
 		return true;

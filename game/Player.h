@@ -427,12 +427,16 @@ public:
 	float weight_mult;
 	int storage[4];
 	float healing_weight;
+	float weight_effect;
 	char time_hours[3];
 	char time_minutes[3];
 	char time_ampm[3];
 	int start_time;
 	int current_time;
 	int timediv;
+	idEntity *shadow;
+	int luretime;
+	void	SetShadow( bool lure = false );
 
 public:
 	CLASS_PROTOTYPE( idPlayer );

@@ -278,6 +278,7 @@ idAI::CheckAction_RangedAttack
 ================
 */
 bool idAI::CheckAction_RangedAttack ( rvAIAction* action, int animNum ) {
+	return false;
 	if ( !enemy.ent || !enemy.fl.inFov ) {
 		return false;
 	}

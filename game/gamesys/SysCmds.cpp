@@ -1169,9 +1169,11 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 	int			i;
 	int			id;
 	float		yaw;
+	bool		r = false;
 	idVec3		org;
 	idPlayer* player;
 	idDict		dict;
+	idEntity* newEnt;
 	//idVec3		corner1 = idVec3(11000, -7250, 135);
 	idVec3		corner = idVec3(9000, -9250, 135);
 
@@ -1179,10 +1181,15 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 		gameLocal.Printf("must have 3 args\n");
 		return;
 	}
-	
+	id = atoi(args.Argv(2));
+	if (id == 0) {
+		r = true;
+	}
 	for (i = 0; i < atoi(args.Argv(1)); i++) {
 		org = idVec3(rand() % 2000, rand() % 2000, 0) + corner;
-		id = atoi(args.Argv(2));
+		if (r) {
+			id = (rand() % 5) + 1;
+		}
 		dict.Set("origin", org.ToString());
 		switch (id) {
 			case 1:
@@ -1198,7 +1205,7 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 				dict.Set("classname", "trigger_hurt");
 				dict.Set("model", "trigger_hurt_2");
 				dict.Set("def_damage", "damage_fire_15");
-				idEntity* newEnt = NULL;
+				newEnt = NULL;
 				gameLocal.SpawnEntityDef(dict, &newEnt);
 				if (newEnt) {
 					gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
@@ -1227,9 +1234,39 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 				dict.Set("model", "func_static_54168");
 				
 				break;
+			case 5:
+				dict.Set("classname", "trigger_hurt");
+				dict.Set("model", "trigger_hurt_2");
+				dict.Set("def_damage", "damage_fire_1");
+				newEnt = NULL;
+				gameLocal.SpawnEntityDef(dict, &newEnt);
+				if (newEnt) {
+					gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+				}
+
+				dict.Clear();
+				dict.Set("origin", org.ToString());
+				dict.Set("classname", "func_static");
+				dict.Set("model", "func_static_54168");
+				break;
+			case 6:
+				dict.Set("classname", "trigger_hurt");
+				dict.Set("model", "trigger_hurt_2");
+				dict.Set("def_damage", "damage_fire_2");
+				newEnt = NULL;
+				gameLocal.SpawnEntityDef(dict, &newEnt);
+				if (newEnt) {
+					gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+				}
+
+				dict.Clear();
+				dict.Set("origin", org.ToString());
+				dict.Set("classname", "func_static");
+				dict.Set("model", "func_static_54168");
+				break;
 		}
 
-		idEntity* newEnt = NULL;
+		newEnt = NULL;
 		gameLocal.SpawnEntityDef(dict, &newEnt);
 		if (newEnt) {
 			gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());

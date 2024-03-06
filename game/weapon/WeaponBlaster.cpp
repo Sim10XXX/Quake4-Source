@@ -353,7 +353,7 @@ stateResult_t rvWeaponBlaster::State_Charge ( const stateParms_t& parms ) {
 				f = chargeGlow[0] + f * (chargeGlow[1] - chargeGlow[0]);
 				f = idMath::ClampFloat ( chargeGlow[0], chargeGlow[1], f );
 				viewModel->SetShaderParm ( BLASTER_SPARM_CHARGEGLOW, f );
-				
+				player->SetShadow();
 				if ( !wsfl.attack ) {
 					SetState ( "Fire", 0 );
 					return SRESULT_DONE;
@@ -391,7 +391,7 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 			return SRESULT_STAGE(CHARGED_WAIT);
 			
 		case CHARGED_WAIT:
-			
+			player->SetShadow();
 			tic++;
 			if (player->health < 100) {
 				if (tic % 10 == 0) {
@@ -455,7 +455,8 @@ stateResult_t rvWeaponBlaster::State_Fire ( const stateParms_t& parms ) {
 				}
 			}
 			fireHeldTime = 0;
-			
+			player->SetShadow();
+
 			return SRESULT_STAGE(FIRE_WAIT);
 		
 		case FIRE_WAIT:

@@ -192,6 +192,17 @@ rvMonsterIronMaiden::CheckActions
 */
 bool rvMonsterIronMaiden::CheckActions ( void ) {
 	// When phased the only available action is phase in
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
+	if (player->CheckFOV(GetEyePosition())) {
+		DormantBegin();
+		StopMove(MOVE_STATUS_DONE);
+		return true;
+	}
+	else {
+		DormantEnd();
+	}
+
 	if ( phaseTime ) {
 		if ( PerformAction_PhaseIn ( ) ) {
 			return true;

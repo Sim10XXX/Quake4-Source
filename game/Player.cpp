@@ -1361,6 +1361,44 @@ idPlayer::idPlayer() {
 	timediv = 50;
 	current_time = gameLocal.time/timediv;
 	start_time = current_time - 480;
+	shadow = NULL;
+	luretime = 0;
+	
+}
+
+void idPlayer::SetShadow( bool lure) {
+	idVec3		org;
+	idDict		dict;
+	idEntity* newEnt = NULL;
+	org = GetPhysics()->GetOrigin();
+	if (shadow == NULL) {
+		dict.Set("origin", org.ToString());
+		dict.Set("classname", "func_static");
+		dict.Set("model", "func_static_54168");
+		
+
+		gameLocal.SpawnEntityDef(dict, &newEnt);
+		if (newEnt) {
+			gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+			shadow = newEnt;
+			shadow->health = 9999999;
+		}
+		else {
+			return;
+		}
+		
+	}
+	if (lure) {
+		if (luretime == 0) {
+			luretime = 100;
+			org += idAngles(0, viewAngles.yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+			shadow->SetOrigin(org);
+		}
+		return;
+	}
+	if (luretime == 0) {
+		shadow->SetOrigin(org);
+	}
 }
 
 /*
@@ -4088,6 +4126,7 @@ void idPlayer::FireWeapon( void ) {
 		// nrausch: objectiveSystem does not necessarily exist (in mp it doesn't)
 		if ( objectiveSystem ) {
 			objectiveSystem->HandleNamedEvent( "weaponFire" );
+			SetShadow();
 		}
 		weaponChangeIconsUp = false;
 	}
@@ -7672,6 +7711,7 @@ void idPlayer::CrashLand( const idVec3 &oldOrigin, const idVec3 &oldVelocity ) {
 	if( pfl.hardLanding ) {
 		StartSound ( "snd_land_hard", SND_CHANNEL_ANY, 0, false, NULL );		
 		StartSound ( "snd_land_hard_pain", SND_CHANNEL_ANY, 0, false, NULL );	
+		SetShadow();
 	} else if ( pfl.softLanding ) {
 		// todo - 2 different landing sounds for variety?
 		StartSound ( "snd_land_soft", SND_CHANNEL_ANY, 0, false, NULL );				 
@@ -8848,7 +8888,9 @@ void idPlayer::AdjustSpeed( void ) {
 
 	speed *= PowerUpModifier(PMOD_SPEED);
 	
-	speed *= 100 / (20 + weight_mult);
+	speed *= 100 / (20 + weight_mult + weight_effect);
+	
+	
 
 	if ( influenceActive == INFLUENCE_LEVEL3 ) {
 		speed *= 0.33f;
@@ -9176,6 +9218,22 @@ void idPlayer::Move( void ) {
 		if ( old_rung != new_rung ) {
  			StartSound( "snd_stepladder", SND_CHANNEL_ANY, 0, false, NULL );
 		}
+	}
+	if (!pfl.crouch) {
+		if (usercmd.buttons & BUTTON_RUN) {
+			if (oldOrigin != physicsObj.GetOrigin()) {
+				SetShadow();
+			}
+		}
+	}
+	if (luretime > 0) {
+		luretime--;
+	}
+	if (weight_effect > 200) {
+		weight_effect = 200;
+	}
+	else if (weight_effect > 0) {
+		weight_effect -= 1.0f;
 	}
 
 	UpdateIntentDir( );
@@ -10271,6 +10329,7 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 	
 	if ( damageDef->dict.GetBool( "burn" ) ) {
 		StartSound( "snd_burn", SND_CHANNEL_BODY3, 0, false, NULL );
+		SetShadow();
 	} else if ( damageDef->dict.GetBool( "no_air" ) ) {
 		if ( !armorSave && health > 0 ) {
 			StartSound( "snd_airGasp", SND_CHANNEL_ITEM, 0, false, NULL );
@@ -12126,6 +12185,7 @@ void idPlayer::NonLocalClientPredictionThink( void ) {
 		// only play sound if still alive
 		if ( health > 0 ) {
 			StartSound( "snd_jump", (s_channelType)FC_SOUND, 0, false, NULL );
+			SetShadow();
 		}
 		jumpDuringHitch = false;
 	}

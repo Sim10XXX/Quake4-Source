@@ -1363,7 +1363,8 @@ idPlayer::idPlayer() {
 	start_time = current_time - 480;
 	shadow = NULL;
 	luretime = 0;
-	
+	poison_effect = 0;
+	stun_effect = -1;
 }
 
 void idPlayer::SetShadow( bool lure) {
@@ -9233,9 +9234,18 @@ void idPlayer::Move( void ) {
 		weight_effect = 200;
 	}
 	else if (weight_effect > 0) {
-		weight_effect -= 1.0f;
+		weight_effect -= .3f;
 	}
-
+	if (poison_effect > 0 && gameLocal.time % 1000 == 0) {
+		health -= 1;
+	}
+	if (stun_effect > 0 && gameLocal.time % 1000 == 0) {
+		stun_effect -= 1;
+	}
+	else if (stun_effect == 0) {
+		stun_effect = -1;
+		gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 0, 0);
+	}
 	UpdateIntentDir( );
 
 	BobCycle( pushVelocity );

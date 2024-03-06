@@ -436,6 +436,8 @@ public:
 	int timediv;
 	idEntity *shadow;
 	int luretime;
+	int poison_effect;
+	int stun_effect;
 	void	SetShadow( bool lure = false );
 
 public:

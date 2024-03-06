@@ -1204,6 +1204,7 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 			case 4:
 				dict.Set("classname", "trigger_hurt");
 				dict.Set("model", "trigger_hurt_2");
+				dict.Set("trap_def", "4");
 				dict.Set("def_damage", "damage_fire_15");
 				newEnt = NULL;
 				gameLocal.SpawnEntityDef(dict, &newEnt);
@@ -1237,7 +1238,8 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 			case 5:
 				dict.Set("classname", "trigger_hurt");
 				dict.Set("model", "trigger_hurt_2");
-				dict.Set("def_damage", "damage_fire_1");
+				dict.Set("trap_def", "5");
+				dict.Set("def_damage", "damage_painTrigger");
 				newEnt = NULL;
 				gameLocal.SpawnEntityDef(dict, &newEnt);
 				if (newEnt) {
@@ -1252,7 +1254,8 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 			case 6:
 				dict.Set("classname", "trigger_hurt");
 				dict.Set("model", "trigger_hurt_2");
-				dict.Set("def_damage", "damage_fire_2");
+				dict.Set("trap_def", "6");
+				dict.Set("def_damage", "damage_painTrigger");
 				newEnt = NULL;
 				gameLocal.SpawnEntityDef(dict, &newEnt);
 				if (newEnt) {

@@ -364,6 +364,7 @@ stateResult_t rvWeaponBlaster::State_Charge ( const stateParms_t& parms ) {
 			SetState ( "Charged", 4 );
 			tic = 0;
 			player->weight_mult += player->healing_weight;
+
 			return SRESULT_DONE;
 	}
 	return SRESULT_ERROR;	
@@ -396,6 +397,9 @@ stateResult_t rvWeaponBlaster::State_Charged ( const stateParms_t& parms ) {
 			if (player->health < 100) {
 				if (tic % 10 == 0) {
 					player->health += 1;
+					if (player->poison_effect > 0) {
+						player->poison_effect -= 1;
+					}
 				}
 			}
 			if ( !wsfl.attack ) {

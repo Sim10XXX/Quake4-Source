@@ -1274,6 +1274,7 @@ idTrigger_Hurt::Event_Touch
 */
 void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 	const char *damage;
+	int trap;
 	idPlayer *player = gameLocal.GetLocalPlayer();
 // RAVEN BEGIN
 // kfuller: playeronly flag
@@ -1286,13 +1287,21 @@ void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 	if ( on && other && gameLocal.time >= nextTime ) {
 		damage = spawnArgs.GetString( "def_damage", "damage_painTrigger" );
 		other->Damage( this, NULL, vec3_origin, damage, 1.0f, INVALID_JOINT );
-		if (damage = "damage_fire_1") {
-			player->weight_effect += 100;
+		if (other->IsType(idPlayer::GetClassType())) {
+			trap = atoi(spawnArgs.GetString("trap_def"));
+			if (trap == 5) {
+				player->weight_effect += 100;
+			}
+			else if (trap == 6) {
+				player->weight_effect += 10;
+				gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 1000, 1);
+				player->stun_effect += 4;
+			}
+			else if (trap == 4) {
+				player->poison_effect += 10;
+			}
 		}
-		else if (damage = "damage_fire_2") {
-			player->weight_effect += 10;
-			gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 10, 3);
-		}
+		
 		ActivateTargets( other );
 		CallScript( other );
 

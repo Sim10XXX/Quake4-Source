@@ -309,6 +309,8 @@ stateResult_t rvWeaponDarkMatterGun::State_Fire ( const stateParms_t& parms ) {
 		STAGE_INIT,
 		STAGE_WAIT,
 	};	
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			StopRings ( );
@@ -316,6 +318,8 @@ stateResult_t rvWeaponDarkMatterGun::State_Fire ( const stateParms_t& parms ) {
 			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
 			Attack ( false, 1, spread, 0, 1.0f );
 			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
+			player->freeze_time += 10;
+			ai_freeze.SetBool(true);
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
 		case STAGE_WAIT:		

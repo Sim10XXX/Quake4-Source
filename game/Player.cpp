@@ -1359,13 +1359,16 @@ idPlayer::idPlayer() {
 	time_ampm[0] = 'a';
 	time_ampm[1] = 'm';
 	time_ampm[2] = '\0';
-	timediv = 50;
+	timediv = 150;
 	current_time = gameLocal.time/timediv;
 	start_time = current_time - 480;
 	shadow = NULL;
 	luretime = 0;
 	poison_effect = 0;
 	stun_effect = -1;
+	freeze_time = -1;
+	firing_weight = 0;
+	heat = 0;
 }
 
 void idPlayer::SetShadow( bool lure) {
@@ -3460,11 +3463,56 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 
 
 	if (current_time != gameLocal.time / timediv) {
+		idEntity* spawner = NULL;
+		char count = 48;
+		char name[14] = "item_spawner0";
+
+
 		current_time = gameLocal.time / timediv;
 		int delta = current_time - start_time; // ASCII chart: 48 = '0', 57 = '9'
 		time_minutes[1] = 48 + delta % 10;
 		time_minutes[0] = 48 + (delta % 60) / 10;
 		time_hours[1] = 48 + (delta % 720) / 60;
+
+		if (delta % 60 == 0 && time_ampm[0] == 'p') {			// spawn monsters
+			gameLocal.Printf("Looking for spawner\n");
+			while (spawner = gameLocal.FindEntity(name)) {
+				gameLocal.Printf("Found ");
+				gameLocal.Printf(name);
+				count++;
+				name[12] = count;
+				if (rand() % 5 == 1) {
+					int id = rand() % 5;
+					idVec3		org;
+					idDict		dict;
+					idEntity* newEnt;
+					org = spawner->GetPhysics()->GetOrigin();
+					dict.Set("origin", org.ToString());
+					switch (id) {
+						case 0:
+							dict.Set("classname", "monster_berserker");
+							break;
+						case 1:
+							dict.Set("classname", "monster_iron_maiden");
+							break;
+						case 2:
+							dict.Set("classname", "monster_grunt");
+							break;
+						case 3:
+						case 4:
+							dict.Set("classname", "monster_slimy_transfer");
+							break;
+
+					}
+					newEnt = NULL;
+					gameLocal.SpawnEntityDef(dict, &newEnt);
+					if (newEnt) {
+						gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
+					}
+				}
+			}
+		}
+
 		if (time_hours[1] == 48) {
 			time_hours[1] = 60;
 		}
@@ -4372,6 +4420,9 @@ bool idPlayer::GiveItem( idItem *item ) {
 						t = true;
 						break;
 					}
+				}
+				else if (item_id == 10) {
+					heat += 1;
 				}
 				storage[i] = item_id;
 				t = true;
@@ -8904,8 +8955,11 @@ void idPlayer::AdjustSpeed( void ) {
 	}
 
 	speed *= PowerUpModifier(PMOD_SPEED);
-	
-	speed *= 100 / (20 + weight_mult + weight_effect);
+	int fweight = 0;
+	if (firing_weight > 0) {
+		fweight = 500;
+	}
+	speed *= 100 / (20 + weight_mult + weight_effect + fweight);
 	
 	
 
@@ -9252,17 +9306,34 @@ void idPlayer::Move( void ) {
 	else if (weight_effect > 0) {
 		weight_effect -= .3f;
 	}
-	if (poison_effect > 0 && gameLocal.time % 1000 == 0) {
-		health -= 1;
+	if (gameLocal.time % 1000 == 0) {
+		if (poison_effect > 0) {
+			health -= 1;
+		}
+		if (stun_effect > 0) {
+			stun_effect -= 1;
+			gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 800, .05);
+		}
+
+		else if (stun_effect == 0) {
+			stun_effect = -1;
+			gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 0, 0);
+		}
+		if (freeze_time > 0) {
+			freeze_time -= 1;
+		}
+		else if (freeze_time == 0) {
+			freeze_time = -1;
+			ai_freeze.SetBool(false);
+		}
+		if (heat > 0) {
+			health -= heat;
+		}
 	}
-	if (stun_effect > 0 && gameLocal.time % 1000 == 0) {
-		stun_effect -= 1;
-		gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 800, .05);
+	if (firing_weight > 0) {
+		firing_weight -= 1;
 	}
-	else if (stun_effect == 0) {
-		stun_effect = -1;
-		gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 0, 0);
-	}
+	
 	UpdateIntentDir( );
 
 	BobCycle( pushVelocity );

@@ -438,6 +438,9 @@ public:
 	int luretime;
 	int poison_effect;
 	int stun_effect;
+	int freeze_time;
+	int firing_weight;
+	int heat;
 	void	SetShadow( bool lure = false );
 
 public:

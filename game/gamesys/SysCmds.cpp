@@ -1176,6 +1176,8 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 	idEntity* newEnt;
 	//idVec3		corner1 = idVec3(11000, -7250, 135);
 	idVec3		corner = idVec3(9000, -9250, 135);
+	char	name[14] = "item_spawner0";
+	char		c = 48;
 
 	if (args.Argc() != 3) {
 		gameLocal.Printf("must have 3 args\n");
@@ -1270,6 +1272,19 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 			case 7:
 				dict.Set("classname", "item_tp");
 				break;
+			case 8:
+				dict.Set("classname", "monster_turret");
+				break;
+			case 9:
+				name[12] = c;
+				dict.Set("name", name);
+				c++;
+				dict.Set("classname", "item_spawner");
+
+				break;
+			case 10:
+				dict.Set("classname", "item_hot");
+				break;
 		}
 
 		newEnt = NULL;
@@ -1295,6 +1310,7 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 			char* str2 = "item_medium";
 			char* str3 = "item_large";
 			char* str4 = "item_tp";
+			char* str5 = "item_hot";
 			idCmdArgs item = idCmdArgs();
 			item.AppendArg(str0);
 			switch (player->storage[i]) {
@@ -1314,7 +1330,13 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 				player->weight_mult -= 25;
 				item.AppendArg(str4);
 				break;
+			case 10:
+				player->weight_mult -= 40;
+				player->heat -= 1;
+				item.AppendArg(str5);
+				break;
 			}
+			
 
 			if (player->storage[i] == 3) {
 				player->storage[i-1] = 0;

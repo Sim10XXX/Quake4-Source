@@ -17,6 +17,7 @@
 #include "ai/AAS_tactical.h"
 #include "Healing_Station.h"
 #include "ai/AI_Medic.h"
+#include "GameSys/SysCmds.h"
 
 // RAVEN BEGIN
 // nrausch: support for turning the weapon change ui on and off
@@ -4348,6 +4349,7 @@ bool idPlayer::GiveItem( idItem *item ) {
 	if (arg && hud) {
 		this->health--;
 		bool t = false;
+		bool tp = false;
 		int item_id = atoi(item->spawnArgs.MatchPrefix("item_id", NULL)->GetValue());
 		for (int i = 0; i < 4; i++) {
 			if (storage[i] == 0) {
@@ -4359,6 +4361,18 @@ bool idPlayer::GiveItem( idItem *item ) {
 						break;
 					}
 				}
+				else if (item_id == 7) {
+					if (rand() % 2 == 0) {
+						idCmdArgs args;
+						args.AppendArg("spawnitems");
+						args.AppendArg("1");
+						args.AppendArg("7");
+						Cmd_SpawnItems_f(args);
+						tp = true;
+						t = true;
+						break;
+					}
+				}
 				storage[i] = item_id;
 				t = true;
 				break;
@@ -4367,7 +4381,9 @@ bool idPlayer::GiveItem( idItem *item ) {
 		if (!t) {
 			return false;
 		}
-		weight_mult += atoi(arg->GetValue());
+		if (!tp) {
+			weight_mult += atoi(arg->GetValue());
+		}
 
 	}
 	arg = item->spawnArgs.MatchPrefix( "inv_weapon", NULL );
@@ -9241,6 +9257,7 @@ void idPlayer::Move( void ) {
 	}
 	if (stun_effect > 0 && gameLocal.time % 1000 == 0) {
 		stun_effect -= 1;
+		gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 800, .05);
 	}
 	else if (stun_effect == 0) {
 		stun_effect = -1;

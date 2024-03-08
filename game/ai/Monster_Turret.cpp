@@ -194,6 +194,7 @@ stateResult_t rvMonsterTurret::State_Torso_BlasterAttack ( const stateParms_t& p
 		case STAGE_WAIT:
 			if ( AnimDone ( ANIMCHANNEL_TORSO, 2 ) ) {
 				if ( --shots <= 0 ) {
+					ClearEnemy();
 					return SRESULT_DONE;
 				}
 				return SRESULT_STAGE ( STAGE_FIRE );

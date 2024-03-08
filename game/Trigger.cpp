@@ -1294,7 +1294,8 @@ void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 			}
 			else if (trap == 6) {
 				player->weight_effect += 10;
-				gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 1000, 1);
+				gameLocal.StartViewEffect(VIEWEFFECT_DOUBLEVISION, 800, .05);
+				//gameLocal.StartViewEffect(VIEWEFFECT_TUNNEL, 1000, 1);
 				player->stun_effect += 4;
 			}
 			else if (trap == 4) {

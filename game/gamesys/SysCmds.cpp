@@ -1267,6 +1267,9 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 				dict.Set("classname", "func_static");
 				dict.Set("model", "func_static_54168");
 				break;
+			case 7:
+				dict.Set("classname", "item_tp");
+				break;
 		}
 
 		newEnt = NULL;
@@ -1291,6 +1294,7 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 			char* str1 = "item_small";
 			char* str2 = "item_medium";
 			char* str3 = "item_large";
+			char* str4 = "item_tp";
 			idCmdArgs item = idCmdArgs();
 			item.AppendArg(str0);
 			switch (player->storage[i]) {
@@ -1305,6 +1309,10 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 			case 3:
 				player->weight_mult -= 40;
 				item.AppendArg(str3);
+				break;
+			case 7:
+				player->weight_mult -= 25;
+				item.AppendArg(str4);
 				break;
 			}
 

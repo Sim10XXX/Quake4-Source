@@ -1282,7 +1282,7 @@ void idTrigger_Hurt::Event_Touch( idEntity *other, trace_t *trace ) {
 	if ( playerOnly && !other->IsType( idPlayer::GetClassType() ) ) {
 		return;
 	}
-	if (other->spawnArgs.GetInt("dies_to_trap", "1")) {
+	if (!other->IsType(idPlayer::GetClassType()) && other->spawnArgs.GetInt("dies_to_trap", "1")) {
 		other->health = 0;
 	}
 // RAVEN END

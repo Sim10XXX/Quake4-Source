@@ -148,12 +148,21 @@ rvMonsterTurret::State_Combat
 */
 stateResult_t rvMonsterTurret::State_Combat ( const stateParms_t& parms ) {
 	// Aquire a new enemy if we dont have one
+	idPlayer* player;
+	player = gameLocal.GetLocalPlayer();
 	if ( !enemy.ent ) {
 		CheckForEnemy ( true );
 	}
-
-	FaceEnemy ( );
-			
+	if (DistanceTo(player) < 500.0f) {
+		FaceEnemy();
+	}
+	else {
+		ClearEnemy();
+	}
+	
+	/*if (CheckFOV(enemy.ent->GetEyePosition())) {
+		ClearEnemy();
+	}*/
 	// try moving, if there was no movement run then just try and action instead
 	UpdateAction ( );
 	

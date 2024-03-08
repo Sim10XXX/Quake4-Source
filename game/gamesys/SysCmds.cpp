@@ -1113,7 +1113,7 @@ void Cmd_Trigger_f( const idCmdArgs &args ) {
 Cmd_Spawn_f
 ===================
 */
-void Cmd_Spawn_f( const idCmdArgs &args ) {
+void Cmd_Spawn_f( const idCmdArgs &args) {
 #ifndef _MPBETA
 	const char *key, *value;
 	int			i;
@@ -1161,6 +1161,7 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 	if (newEnt)	{
 		gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
 	}
+	player->lastEnt = newEnt;
 // RAVEN END
 #endif // !_MPBETA
 }
@@ -1175,7 +1176,7 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 	idDict		dict;
 	idEntity* newEnt;
 	//idVec3		corner1 = idVec3(11000, -7250, 135);
-	idVec3		corner = idVec3(9000, -9250, 135);
+	idVec3		corner = idVec3(8000, -9500, 135);
 	char	name[14] = "item_spawner0";
 	char		c = 48;
 
@@ -1188,9 +1189,9 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 		r = true;
 	}
 	for (i = 0; i < atoi(args.Argv(1)); i++) {
-		org = idVec3(rand() % 2000, rand() % 2000, 0) + corner;
+		org = idVec3(rand() % 3000, rand() % 2200, 0) + corner;
 		if (r) {
-			id = (rand() % 5) + 1;
+			id = (rand() % 10) + 1;
 		}
 		dict.Set("origin", org.ToString());
 		switch (id) {
@@ -1285,6 +1286,19 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 			case 10:
 				dict.Set("classname", "item_hot");
 				break;
+			case 11:
+				dict.Set("classname", "weapon_rocketlauncher");
+				break;
+			case 12:
+				dict.Set("classname", "weapon_machinegun");
+				break;
+			case 13:
+				dict.Set("classname", "weapon_dmg");
+				break;
+			case 14:
+				dict.Set("classname", "weapon_shotgun");
+				break;
+
 		}
 
 		newEnt = NULL;
@@ -1292,12 +1306,13 @@ void Cmd_SpawnItems_f(const idCmdArgs& args) {
 		if (newEnt) {
 			gameLocal.Printf("spawned entity '%s' at %s\n", newEnt->name.c_str(), org.ToString());
 		}
+		dict.Clear();
 	}
 }
 
 void Cmd_DropItem_f(const idCmdArgs& args) {
 	idPlayer* player;
-
+	idEntity* ent;
 	player = gameLocal.GetLocalPlayer();
 	if (!player) {
 		return;
@@ -1342,12 +1357,45 @@ void Cmd_DropItem_f(const idCmdArgs& args) {
 				player->storage[i-1] = 0;
 			}
 			player->storage[i] = 0;
-			Cmd_Spawn_f(item);
+			gameLocal.Printf("x: %f\n", player->GetPhysics()->GetOrigin().x);
+			gameLocal.Printf("y: %f\n", player->GetPhysics()->GetOrigin().y);
+			gameLocal.Printf("z: %f\n", player->GetPhysics()->GetOrigin().z);
+			if (player->GetPhysics()->GetOrigin().x > 11000) {
+				Cmd_Spawn_f(item);
+				ent = player->lastEnt;
+				ent->Hide();
+				player->score += ent->spawnArgs.GetInt("score");
+
+			}
+			else {
+				Cmd_Spawn_f(item);
+			}
 			break;
 		}
 	}
 }
+void Cmd_Start_f(const idCmdArgs& args) {
+	idCmdArgs ar;
+	idPlayer* player;
 
+	player = gameLocal.GetLocalPlayer();
+
+	ar = idCmdArgs("spawnitems 30 0", true);
+	Cmd_SpawnItems_f(ar);
+	ar = idCmdArgs("spawnitems 1 11", true);
+	Cmd_SpawnItems_f(ar);
+	ar = idCmdArgs("spawnitems 1 12", true);
+	Cmd_SpawnItems_f(ar);
+	ar = idCmdArgs("spawnitems 1 13", true);
+	Cmd_SpawnItems_f(ar);
+	ar = idCmdArgs("spawnitems 1 14", true);
+	Cmd_SpawnItems_f(ar);
+
+	player->time = true;
+	player->current_time = gameLocal.time / player->timediv;
+	player->start_time = player->current_time - 480;
+
+}
 // RAVEN BEGIN
 // ddynerman: MP spawning command for performance testing
 
@@ -3426,6 +3474,7 @@ void idGameLocal::InitConsoleCommands( void ) {
 // RITUAL END
 	cmdSystem->AddCommand( "dropItem" , Cmd_DropItem_f, CMD_FL_GAME, "Drops an item from storage");
 	cmdSystem->AddCommand( "spawnItems", Cmd_SpawnItems_f, CMD_FL_GAME, "Randomly spawns in items/hazards in a pre-coded area");
+	cmdSystem->AddCommand( "start", Cmd_Start_f, CMD_FL_GAME, "Start game with default settings");
 }
 
 /*

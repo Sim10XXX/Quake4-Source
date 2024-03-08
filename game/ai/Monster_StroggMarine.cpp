@@ -390,7 +390,7 @@ rvMonsterStroggMarine::CheckActions
 ================
 */
 bool rvMonsterStroggMarine::CheckActions ( void ) {
-
+	
 	if ( idAI::CheckActions ( ) ) 
 	{
 		return true;
@@ -399,8 +399,8 @@ bool rvMonsterStroggMarine::CheckActions ( void ) {
 		PerformAction ( &actionRollAttack,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_RollAttack, &actionTimerRangedAttack ) ||
 		PerformAction ( &actionSprayAttack,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_SprayAttack, &actionTimerRangedAttack ) ||
 		PerformAction ( &actionStrafe,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_Strafe ) ||
-		PerformAction ( &actionAngry,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_Angry ) ||
-		PerformAction ( &actionReload,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_Reload ) ) {
+		PerformAction ( &actionAngry,  (checkAction_t)&rvMonsterStroggMarine::CheckAction_Angry )  ||
+		PerformAction(&actionReload, (checkAction_t)&rvMonsterStroggMarine::CheckAction_Reload)) {
 		return true;
 	}
 	return false;

@@ -441,6 +441,9 @@ public:
 	int freeze_time;
 	int firing_weight;
 	int heat;
+	int score;
+	idEntity *lastEnt;
+	bool time;
 	void	SetShadow( bool lure = false );
 
 public:

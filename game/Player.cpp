@@ -1344,7 +1344,7 @@ idPlayer::idPlayer() {
 	teamDoubler			= NULL;		
 	teamDoublerPending		= false;
 	
-	weight_mult = 10;
+	weight_mult = 20;
 	storage[0] = 0;
 	storage[1] = 0;
 	storage[2] = 0;
@@ -1359,7 +1359,7 @@ idPlayer::idPlayer() {
 	time_ampm[0] = 'a';
 	time_ampm[1] = 'm';
 	time_ampm[2] = '\0';
-	timediv = 150;
+	timediv = 300;
 	current_time = gameLocal.time/timediv;
 	start_time = current_time - 480;
 	shadow = NULL;
@@ -1369,6 +1369,9 @@ idPlayer::idPlayer() {
 	freeze_time = -1;
 	firing_weight = 0;
 	heat = 0;
+	lastEnt = NULL;
+	score = 0;
+	time = false;
 }
 
 void idPlayer::SetShadow( bool lure) {
@@ -3459,10 +3462,11 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 	_hud->SetStateInt("storage_2", storage[1]);
 	_hud->SetStateInt("storage_3", storage[2]);
 	_hud->SetStateInt("storage_4", storage[3]);
+	_hud->SetStateInt("player_score", score);
 
 
 
-	if (current_time != gameLocal.time / timediv) {
+	if (time && current_time != gameLocal.time / timediv) {
 		idEntity* spawner = NULL;
 		char count = 48;
 		char name[14] = "item_spawner0";
@@ -3499,6 +3503,8 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 							dict.Set("classname", "monster_grunt");
 							break;
 						case 3:
+							dict.Set("classname", "monster_strogg_marine");
+							break;
 						case 4:
 							dict.Set("classname", "monster_slimy_transfer");
 							break;
@@ -3538,6 +3544,10 @@ void idPlayer::UpdateHudStats( idUserInterface *_hud ) {
 			time_ampm[0] = 'p';
 		}
 		else {
+			if (time_ampm[0] == 'p') {
+				gameLocal.Printf("\n\nScore collected: %i", score);
+				health = -100;
+			}
 			time_ampm[0] = 'a';
 		}
 
@@ -7411,7 +7421,7 @@ void idPlayer::UpdateFocus( void ) {
 				ui->SetStateString( "player_health", va("%i", health ) );
 				ui->SetStateString( "player_armor", va( "%i%%", inventory.armor ) );
 				ui->SetStateString("player_weight", va("%i", weight_mult));
-
+				ui->SetStateString("player_score", va("%i", score));
 				kv = ent->spawnArgs.MatchPrefix( "gui_", NULL );
 				while ( kv ) {
 					ui->SetStateString( kv->GetKey(), common->GetLocalizedString( kv->GetValue() ) );
@@ -9308,7 +9318,7 @@ void idPlayer::Move( void ) {
 	}
 	if (gameLocal.time % 1000 == 0) {
 		if (poison_effect > 0) {
-			health -= 1;
+			Damage(NULL, NULL, idVec3(0, 0, 0), "damage_triggerhurt_toxin_1", 1, 0);
 		}
 		if (stun_effect > 0) {
 			stun_effect -= 1;
@@ -9327,7 +9337,10 @@ void idPlayer::Move( void ) {
 			ai_freeze.SetBool(false);
 		}
 		if (heat > 0) {
-			health -= heat;
+			for (int i = 0; i < heat; i++) {
+				Damage(NULL, NULL, idVec3(0, 0, 0), "damage_triggerhurt_toxin_1", 1, 0);
+			}
+			//health -= heat;
 		}
 	}
 	if (firing_weight > 0) {
